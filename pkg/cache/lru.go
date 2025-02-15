@@ -24,7 +24,7 @@ func NewElement[K comparable, V any](key K, value V) *Element[K, V] {
 func NewLRU[K comparable, V any](cap int, onEvicted func(key K, value V)) *LRU[K, V] {
 	return &LRU[K, V]{
 		cap:       cap,
-		cache:     make(map[K]*list.Element),
+		cache:     make(map[K]*list.Element, cap),
 		list:      list.New(),
 		OnEvicted: onEvicted,
 	}
@@ -52,7 +52,7 @@ func (c LRU[K, V]) Add(key K, value V) bool {
 func (c LRU[K, V]) Remove(key K) (k K, v V, ok bool) {
 	if elem, ok := c.cache[key]; ok {
 		c.list.Remove(elem)
-		delete(c.cache, key)
+		delete(c.cache, elem.Value.(*Element[K, V]).key)
 
 		if c.OnEvicted != nil {
 			c.OnEvicted(elem.Value.(*Element[K, V]).key, elem.Value.(*Element[K, V]).value)
