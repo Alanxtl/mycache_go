@@ -40,7 +40,7 @@ func NewGroup(name string, cacheBytes int, getter getter.Getter) *Group {
 	return g
 }
 
-func getGroup(name string) *Group {
+func GetGroup(name string) *Group {
 	mu.RLock()
 	defer mu.RUnlock()
 
