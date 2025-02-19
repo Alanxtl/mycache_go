@@ -2,17 +2,26 @@ package server
 
 import (
 	"fmt"
+	"github.com/Alanxtl/mycache_go/pkg/client"
 	"github.com/Alanxtl/mycache_go/pkg/mycache"
+	"github.com/Alanxtl/mycache_go/pkg/mycache/consistenthash"
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 )
 
-const DefaultBasePath = "/_mycache/"
+const (
+	DefaultBasePath = "/_mycache/"
+	defaultReplicas = 50
+)
 
 type HttpPoll struct {
-	self     string
-	basePath string
+	self        string
+	basePath    string
+	lock        sync.Mutex
+	peers       *consistenthash.Map
+	httpGetters map[string]*client.HttpGetter
 }
 
 func NewHttpPool(self string) *HttpPoll {
@@ -61,3 +70,29 @@ func (p *HttpPoll) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (p *HttpPoll) Set(peers ...string) {
+	p.lock.Lock()
+	defer p.lock.Unlock()
+
+	p.peers = consistenthash.New(defaultReplicas, nil)
+	p.peers.Add(peers...)
+	p.httpGetters = make(map[string]*client.HttpGetter, len(peers))
+	for _, peer := range peers {
+		p.httpGetters[peer] = &client.HttpGetter{BaseURL: peer + p.basePath}
+	}
+}
+
+func (p *HttpPoll) PickPeer(key string) (mycache.PeerGetter, bool) {
+	p.lock.Lock()
+	defer p.lock.Unlock()
+
+	if peer := p.peers.Get(key); peer != "" && peer != p.self {
+		p.Log("Pick peer %s", peer)
+		return p.httpGetters[peer], true
+	}
+
+	return nil, false
+}
+
+var _ mycache.PeerPicker = (*HttpPoll)(nil)

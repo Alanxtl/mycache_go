@@ -14,6 +14,7 @@ type Group struct {
 	name      string
 	getter    getter.Getter
 	mainCache lru.Mutex[string, cache.ByteView]
+	peers     PeerPicker
 }
 
 var (
@@ -63,10 +64,6 @@ func (g *Group) Get(key string) (cache.ByteView, error) {
 	return g.load(key)
 }
 
-func (g *Group) load(key string) (cache.ByteView, error) {
-	return g.getLocally(key)
-}
-
 func (g *Group) getLocally(key string) (cache.ByteView, error) {
 	// 通过用户回调函数获取源数据
 	bytes, err := g.getter.Get(key)
@@ -84,4 +81,33 @@ func (g *Group) getLocally(key string) (cache.ByteView, error) {
 func (g *Group) populateCache(key string, value cache.ByteView) {
 	// 将源数据添加到缓存
 	g.mainCache.Add(key, value)
+}
+
+func (g *Group) RegisterPeers(peers PeerPicker) {
+	if g.peers != nil {
+		panic("RegisterPeerPicker called more than once")
+	}
+
+	g.peers = peers
+}
+
+func (g *Group) load(key string) (value cache.ByteView, err error) {
+	if g.peers != nil {
+		if peer, ok := g.peers.PickPeer(key); ok {
+			if value, err = g.getFromPeer(peer, key); err != nil {
+				return value, nil
+			}
+			log.Println("[mycache] Failed to get from peer", err)
+		}
+	}
+
+	return g.getLocally(key)
+}
+
+func (g *Group) getFromPeer(peer PeerGetter, key string) (value cache.ByteView, err error) {
+	bytes, err := peer.Get(g.name, key)
+	if err != nil {
+		return cache.ByteView{}, err
+	}
+	return cache.ByteView{Bytes: bytes}, nil
 }
