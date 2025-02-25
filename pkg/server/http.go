@@ -5,6 +5,8 @@ import (
 	"github.com/Alanxtl/mycache_go/pkg/client"
 	"github.com/Alanxtl/mycache_go/pkg/mycache"
 	"github.com/Alanxtl/mycache_go/pkg/mycache/consistenthash"
+	pb "github.com/Alanxtl/mycache_go/pkg/pb"
+	"google.golang.org/protobuf/proto"
 	"log"
 	"net/http"
 	"strings"
@@ -63,8 +65,14 @@ func (p *HttpPoll) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	body, err := proto.Marshal(&pb.Response{Value: view.ByteSlice()})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/octet-stream")
-	_, err = w.Write(view.ByteSlice())
+	_, err = w.Write(body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

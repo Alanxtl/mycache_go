@@ -38,7 +38,7 @@ func (h *HttpGetter) Get(in *pb.Request) (*pb.Response, error) {
 		return nil, fmt.Errorf("read response body err: %v", err)
 	}
 
-	var out *pb.Response
+	out := &pb.Response{}
 	if err = proto.Unmarshal(bytes, out); err != nil {
 		return nil, fmt.Errorf("decode response body err: %v", err)
 	}
