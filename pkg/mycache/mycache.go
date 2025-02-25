@@ -3,8 +3,10 @@ package mycache
 import (
 	"fmt"
 	"github.com/Alanxtl/mycache_go/pkg/cache"
-	"github.com/Alanxtl/mycache_go/pkg/cache/lru"
+	l "github.com/Alanxtl/mycache_go/pkg/cache/lru"
 	"github.com/Alanxtl/mycache_go/pkg/mycache/getter"
+	pb "github.com/Alanxtl/mycache_go/pkg/pb"
+	"github.com/Alanxtl/mycache_go/pkg/singleflight"
 	"github.com/Alanxtl/mycache_go/pkg/tools"
 	"log"
 	"sync"
@@ -13,8 +15,9 @@ import (
 type Group struct {
 	name      string
 	getter    getter.Getter
-	mainCache lru.Mutex[string, cache.ByteView]
+	mainCache l.Mutex[string, cache.ByteView]
 	peers     PeerPicker
+	loader    *singleflight.Group
 }
 
 var (
@@ -33,9 +36,10 @@ func NewGroup(name string, cacheBytes int, getter getter.Getter) *Group {
 	g := &Group{
 		name:   name,
 		getter: getter,
-		mainCache: lru.Mutex[string, cache.ByteView]{
+		mainCache: l.Mutex[string, cache.ByteView]{
 			Cap: cacheBytes,
 		},
+		loader: &singleflight.Group{},
 	}
 	groups[name] = g
 	return g
@@ -92,22 +96,33 @@ func (g *Group) RegisterPeers(peers PeerPicker) {
 }
 
 func (g *Group) load(key string) (value cache.ByteView, err error) {
-	if g.peers != nil {
-		if peer, ok := g.peers.PickPeer(key); ok {
-			if value, err = g.getFromPeer(peer, key); err != nil {
-				return value, nil
+
+	viewi, err := g.loader.Do(key, func() (interface{}, error) {
+		if g.peers != nil {
+			if peer, ok := g.peers.PickPeer(key); ok {
+				if value, err = g.getFromPeer(peer, key); err == nil {
+					return value, nil
+				}
+				log.Println("[mycache] Failed to get from peer", err)
 			}
-			log.Println("[mycache] Failed to get from peer", err)
 		}
+		return g.getLocally(key)
+	})
+
+	if err == nil {
+		return viewi.(cache.ByteView), nil
 	}
 
-	return g.getLocally(key)
+	return
 }
 
 func (g *Group) getFromPeer(peer PeerGetter, key string) (value cache.ByteView, err error) {
-	bytes, err := peer.Get(g.name, key)
+	out, err := peer.Get(&pb.Request{
+		Group: g.name,
+		Key:   key,
+	})
 	if err != nil {
 		return cache.ByteView{}, err
 	}
-	return cache.ByteView{Bytes: bytes}, nil
+	return cache.ByteView{Bytes: out.Value}, nil
 }

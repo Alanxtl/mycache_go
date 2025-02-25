@@ -3,6 +3,8 @@ package client
 import (
 	"fmt"
 	"github.com/Alanxtl/mycache_go/pkg/mycache"
+	pb "github.com/Alanxtl/mycache_go/pkg/pb"
+	"google.golang.org/protobuf/proto"
 	"io"
 	"net/http"
 	"net/url"
@@ -12,12 +14,13 @@ type HttpGetter struct {
 	BaseURL string
 }
 
-func (h *HttpGetter) Get(group string, key string) ([]byte, error) {
+func (h *HttpGetter) Get(in *pb.Request) (*pb.Response, error) {
+
 	u := fmt.Sprintf(
 		"%v%v/%v",
 		h.BaseURL,
-		url.QueryEscape(group),
-		url.QueryEscape(key),
+		url.QueryEscape(in.Group),
+		url.QueryEscape(in.Key),
 	)
 
 	res, err := http.Get(u)
@@ -35,7 +38,12 @@ func (h *HttpGetter) Get(group string, key string) ([]byte, error) {
 		return nil, fmt.Errorf("read response body err: %v", err)
 	}
 
-	return bytes, nil
+	var out *pb.Response
+	if err = proto.Unmarshal(bytes, out); err != nil {
+		return nil, fmt.Errorf("decode response body err: %v", err)
+	}
+
+	return out, nil
 }
 
 var _ mycache.PeerGetter = (*HttpGetter)(nil)
