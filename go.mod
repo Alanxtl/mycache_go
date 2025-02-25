@@ -2,7 +2,4 @@ module github.com/Alanxtl/mycache_go
 
 go 1.23.2
 
-require (
-	github.com/golang/protobuf v1.5.4 // indirect
-	google.golang.org/protobuf v1.36.5 // indirect
-)
+require google.golang.org/protobuf v1.36.5
