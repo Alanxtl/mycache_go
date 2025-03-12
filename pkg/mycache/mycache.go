@@ -9,8 +9,8 @@ import (
 import (
 	"github.com/Alanxtl/mycache_go/pkg/cache"
 	"github.com/Alanxtl/mycache_go/pkg/cache/lru"
+	pb "github.com/Alanxtl/mycache_go/pkg/message"
 	"github.com/Alanxtl/mycache_go/pkg/mycache/getter"
-	pb "github.com/Alanxtl/mycache_go/pkg/pb"
 	"github.com/Alanxtl/mycache_go/pkg/singleflight"
 	"github.com/Alanxtl/mycache_go/pkg/tools"
 )

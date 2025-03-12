@@ -1,26 +1,20 @@
-package client
+package server
 
 import (
 	"fmt"
+	message "github.com/Alanxtl/mycache_go/pkg/message"
+	"github.com/Alanxtl/mycache_go/pkg/mycache"
+	"google.golang.org/protobuf/proto"
 	"io"
 	"net/http"
 	"net/url"
-)
-
-import (
-	"google.golang.org/protobuf/proto"
-)
-
-import (
-	"github.com/Alanxtl/mycache_go/pkg/mycache"
-	pb "github.com/Alanxtl/mycache_go/pkg/pb"
 )
 
 type HttpGetter struct {
 	BaseURL string
 }
 
-func (h *HttpGetter) Get(in *pb.Request) (*pb.Response, error) {
+func (h *HttpGetter) Get(in *message.Request) (*message.Response, error) {
 
 	u := fmt.Sprintf(
 		"%v%v/%v",
@@ -44,7 +38,7 @@ func (h *HttpGetter) Get(in *pb.Request) (*pb.Response, error) {
 		return nil, fmt.Errorf("read response body err: %v", err)
 	}
 
-	out := &pb.Response{}
+	out := &message.Response{}
 	if err = proto.Unmarshal(bytes, out); err != nil {
 		return nil, fmt.Errorf("decode response body err: %v", err)
 	}

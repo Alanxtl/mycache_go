@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package pb;
+package message;
 
-option go_package = "/";
+option go_package = "github.com/Alanxtl/mycache_go;message";
 
 message Request {
   string group = 1;
@@ -14,5 +14,5 @@ message Response {
 }
 
 service GroupCache {
-  rpc Get(Request) returns (Response);
+  rpc Get(Request) returns (Response) {};
 }

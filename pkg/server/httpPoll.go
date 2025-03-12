@@ -13,11 +13,10 @@ import (
 )
 
 import (
-	"github.com/Alanxtl/mycache_go/pkg/client"
+	pb "github.com/Alanxtl/mycache_go/pkg/message"
 	"github.com/Alanxtl/mycache_go/pkg/mycache"
 	"github.com/Alanxtl/mycache_go/pkg/mycache/loadbalance"
 	"github.com/Alanxtl/mycache_go/pkg/mycache/loadbalance/consistenthash"
-	pb "github.com/Alanxtl/mycache_go/pkg/pb"
 )
 
 const (
@@ -30,7 +29,7 @@ type HttpPoll struct {
 	basePath    string
 	lock        sync.Mutex
 	peers       loadbalance.Loadbalance
-	httpGetters map[string]*client.HttpGetter
+	httpGetters map[string]*HttpGetter
 }
 
 func NewHttpPool(self string) *HttpPoll {
@@ -93,9 +92,9 @@ func (p *HttpPoll) Set(peers ...string) {
 
 	p.peers = consistenthash.New(defaultReplicas, nil)
 	p.peers.Add(peers...)
-	p.httpGetters = make(map[string]*client.HttpGetter, len(peers))
+	p.httpGetters = make(map[string]*HttpGetter, len(peers))
 	for _, peer := range peers {
-		p.httpGetters[peer] = &client.HttpGetter{BaseURL: peer + p.basePath}
+		p.httpGetters[peer] = &HttpGetter{BaseURL: peer + p.basePath}
 	}
 }
 
