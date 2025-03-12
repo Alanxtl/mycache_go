@@ -2,12 +2,18 @@ package client
 
 import (
 	"fmt"
-	"github.com/Alanxtl/mycache_go/pkg/mycache"
-	pb "github.com/Alanxtl/mycache_go/pkg/pb"
-	"google.golang.org/protobuf/proto"
 	"io"
 	"net/http"
 	"net/url"
+)
+
+import (
+	"google.golang.org/protobuf/proto"
+)
+
+import (
+	"github.com/Alanxtl/mycache_go/pkg/mycache"
+	pb "github.com/Alanxtl/mycache_go/pkg/pb"
 )
 
 type HttpGetter struct {

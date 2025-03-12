@@ -2,20 +2,23 @@ package mycache
 
 import (
 	"fmt"
+	"log"
+	"sync"
+)
+
+import (
 	"github.com/Alanxtl/mycache_go/pkg/cache"
-	l "github.com/Alanxtl/mycache_go/pkg/cache/lru"
+	"github.com/Alanxtl/mycache_go/pkg/cache/lru"
 	"github.com/Alanxtl/mycache_go/pkg/mycache/getter"
 	pb "github.com/Alanxtl/mycache_go/pkg/pb"
 	"github.com/Alanxtl/mycache_go/pkg/singleflight"
 	"github.com/Alanxtl/mycache_go/pkg/tools"
-	"log"
-	"sync"
 )
 
 type Group struct {
 	name      string
 	getter    getter.Getter
-	mainCache l.Mutex[string, cache.ByteView]
+	mainCache cache.Cache[string, cache.ByteView]
 	peers     PeerPicker
 	loader    *singleflight.Group
 }
@@ -34,12 +37,10 @@ func NewGroup(name string, cacheBytes int, getter getter.Getter) *Group {
 	defer mu.Unlock()
 
 	g := &Group{
-		name:   name,
-		getter: getter,
-		mainCache: l.Mutex[string, cache.ByteView]{
-			Cap: cacheBytes,
-		},
-		loader: &singleflight.Group{},
+		name:      name,
+		getter:    getter,
+		mainCache: lru.NewLRUMutex[string, cache.ByteView](cacheBytes, nil),
+		loader:    &singleflight.Group{},
 	}
 	groups[name] = g
 	return g

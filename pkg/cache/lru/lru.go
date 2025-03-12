@@ -1,6 +1,8 @@
 package lru
 
-import "container/list"
+import (
+	"container/list"
+)
 
 type LRU[K comparable, V any] struct {
 	cap       int

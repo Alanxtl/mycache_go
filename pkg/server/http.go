@@ -2,15 +2,22 @@ package server
 
 import (
 	"fmt"
-	"github.com/Alanxtl/mycache_go/pkg/client"
-	"github.com/Alanxtl/mycache_go/pkg/mycache"
-	"github.com/Alanxtl/mycache_go/pkg/mycache/consistenthash"
-	pb "github.com/Alanxtl/mycache_go/pkg/pb"
-	"google.golang.org/protobuf/proto"
 	"log"
 	"net/http"
 	"strings"
 	"sync"
+)
+
+import (
+	"google.golang.org/protobuf/proto"
+)
+
+import (
+	"github.com/Alanxtl/mycache_go/pkg/client"
+	"github.com/Alanxtl/mycache_go/pkg/mycache"
+	"github.com/Alanxtl/mycache_go/pkg/mycache/loadbalance"
+	"github.com/Alanxtl/mycache_go/pkg/mycache/loadbalance/consistenthash"
+	pb "github.com/Alanxtl/mycache_go/pkg/pb"
 )
 
 const (
@@ -22,7 +29,7 @@ type HttpPoll struct {
 	self        string
 	basePath    string
 	lock        sync.Mutex
-	peers       *consistenthash.Map
+	peers       loadbalance.Loadbalance
 	httpGetters map[string]*client.HttpGetter
 }
 
@@ -30,6 +37,7 @@ func NewHttpPool(self string) *HttpPoll {
 	return &HttpPoll{
 		self:     self,
 		basePath: DefaultBasePath,
+		lock:     sync.Mutex{},
 	}
 }
 

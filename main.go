@@ -3,11 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
+	"net/http"
+)
+
+import (
 	"github.com/Alanxtl/mycache_go/pkg/mycache"
 	"github.com/Alanxtl/mycache_go/pkg/mycache/getter"
 	"github.com/Alanxtl/mycache_go/pkg/server"
-	"log"
-	"net/http"
 )
 
 var db = map[string]string{

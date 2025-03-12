@@ -1,6 +1,8 @@
 package mycache
 
-import pb "github.com/Alanxtl/mycache_go/pkg/pb"
+import (
+	pb "github.com/Alanxtl/mycache_go/pkg/pb"
+)
 
 type PeerPicker interface {
 	PickPeer(key string) (peer PeerGetter, ok bool)

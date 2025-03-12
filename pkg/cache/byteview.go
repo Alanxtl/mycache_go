@@ -1,6 +1,8 @@
 package cache
 
-import "github.com/Alanxtl/mycache_go/pkg/tools"
+import (
+	"github.com/Alanxtl/mycache_go/pkg/tools"
+)
 
 type ByteView struct {
 	Bytes []byte

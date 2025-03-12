@@ -2,11 +2,14 @@ package server
 
 import (
 	"fmt"
-	"github.com/Alanxtl/mycache_go/pkg/mycache"
-	"github.com/Alanxtl/mycache_go/pkg/mycache/getter"
 	"log"
 	"net/http"
 	"testing"
+)
+
+import (
+	"github.com/Alanxtl/mycache_go/pkg/mycache"
+	"github.com/Alanxtl/mycache_go/pkg/mycache/getter"
 )
 
 var db = map[string]string{
