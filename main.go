@@ -10,7 +10,7 @@ import (
 import (
 	"github.com/Alanxtl/mycache_go/pkg/mycache"
 	"github.com/Alanxtl/mycache_go/pkg/mycache/getter"
-	"github.com/Alanxtl/mycache_go/pkg/server"
+	"github.com/Alanxtl/mycache_go/pkg/peer"
 )
 
 var db = map[string]string{
@@ -26,12 +26,13 @@ func createGroup() *mycache.Group {
 			if v, ok := db[key]; ok {
 				return []byte(v), nil
 			}
+			log.Println("[SlowDB] key not found", key)
 			return nil, fmt.Errorf("%s not exist", key)
 		}))
 }
 
 func startCacheServer(addr string, addrs []string, gee *mycache.Group) {
-	peers := server.NewHttpPool(addr)
+	peers := peer.NewHttpPool(addr)
 	peers.Set(addrs...)
 	gee.RegisterPeers(peers)
 	log.Println("geecache is running at", addr)

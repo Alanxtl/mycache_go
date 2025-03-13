@@ -1,0 +1,28 @@
+global:
+  evaluation_interval: 15s
+  scrape_interval: 15s
+scrape_configs:
+  - job_name: dubbo-provider
+    scrape_interval: 15s
+    scrape_timeout: 5s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['localhost:9999']
+  - job_name: dubbo-provider-8001
+    scrape_interval: 15s
+    scrape_timeout: 5s
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ 'localhost:8001' ]
+  - job_name: dubbo-provider-8002
+    scrape_interval: 15s
+    scrape_timeout: 5s
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ '172.22.128.1:8002' ]
+  - job_name: dubbo-provider-8003
+    scrape_interval: 15s
+    scrape_timeout: 5s
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ '172.22.142.171:8003' ]

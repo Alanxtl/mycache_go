@@ -5,6 +5,7 @@ import (
 )
 
 type PeerPicker interface {
+	GetSelf() string
 	PickPeer(key string) (peer PeerGetter, ok bool)
 }
 

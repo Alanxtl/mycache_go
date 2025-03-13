@@ -1,4 +1,4 @@
-package server
+package peer
 
 const (
 	DefaultBasePath = "/_mycache/"

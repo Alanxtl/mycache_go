@@ -61,11 +61,12 @@ func (g *Group) Get(key string) (cache.ByteView, error) {
 
 	if v, ok := g.mainCache.Get(key); ok {
 		// 从 mainCache 中查找缓存，如果存在则返回缓存值
-		log.Println("[mycache] hit")
+		log.Printf("[mycache %s] hit", g.peers.GetSelf())
 		return v, nil
 	}
 
 	// 缓存不存在，则调用 load 方法
+	log.Printf("[mycache %s] miss", g.peers.GetSelf())
 	return g.load(key)
 }
 
@@ -108,7 +109,7 @@ func (g *Group) load(key string) (value cache.ByteView, err error) {
 			}
 		}
 
-		// 这个getLocally只是针对当前用例所以是从本地中获取，实际场景中应该打到主DB上
+		// 这个getLocally只是针对本地场景所以是从本地中获取，实际场景中应该打到主DB上
 		return g.getLocally(key)
 	})
 

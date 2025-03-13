@@ -1,4 +1,4 @@
-package server
+package peer
 
 import (
 	"context"
@@ -8,9 +8,8 @@ import (
 
 import (
 	"dubbo.apache.org/dubbo-go/v3"
+	"dubbo.apache.org/dubbo-go/v3/logger"
 	"dubbo.apache.org/dubbo-go/v3/registry"
-
-	"github.com/dubbogo/gost/log/logger"
 
 	"github.com/joho/godotenv"
 )
@@ -31,13 +30,15 @@ func (h *DubboGetter) Get(in *message.Request) (*message.Response, error) {
 
 	registryAddr := os.Getenv("REGISTRY_ADDR")
 
-	log.Println(registryAddr)
 
 	ins, err := dubbo.NewInstance(
 		dubbo.WithName("mycache_client"),
 		dubbo.WithRegistry(
 			registry.WithNacos(),
 			registry.WithAddress(registryAddr),
+		),
+		dubbo.WithLogger(
+			logger.WithLevel("warn"),
 		),
 	)
 	if err != nil {
@@ -50,7 +51,6 @@ func (h *DubboGetter) Get(in *message.Request) (*message.Response, error) {
 		panic(err)
 	}
 
-	log.Println(2)
 	svc, err := message.NewGroupCache(cli)
 	if err != nil {
 		panic(err)
@@ -60,14 +60,13 @@ func (h *DubboGetter) Get(in *message.Request) (*message.Response, error) {
 		&message.Request{
 			Group: in.Group,
 			Key:   in.Key})
-	log.Println(3)
 
 	if err != nil {
-		logger.Error(err)
+		log.Println(err)
 		return nil, err
 	}
 
-	log.Printf("[getter] get response: %s", resp)
+	log.Printf("[getter] get response from peer %s: %s", h.BaseURL, resp)
 
 	return resp, nil
 }

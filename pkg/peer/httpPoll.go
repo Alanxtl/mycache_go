@@ -1,4 +1,4 @@
-package server
+package peer
 
 import (
 	"fmt"
@@ -105,4 +105,7 @@ func (p *HttpPoll) PickPeer(key string) (mycache.PeerGetter, bool) {
 	return nil, false
 }
 
+func (p *HttpPoll) GetSelf() string {
+	return p.self
+}
 //var _ mycache.PeerPicker = (*HttpPoll)(nil)

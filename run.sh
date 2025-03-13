@@ -5,8 +5,8 @@ source ~/.unproxy
 
 go build -o server ./cmd/dubbo/main.go
 ./server -port=8001 &
-./server -port=8002 &
-./server -port=8003 -api=1 &
+./server -port=8002 -api=1 &
+./server -port=8003 &
 
 sleep 2
 

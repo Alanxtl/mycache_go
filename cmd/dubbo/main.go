@@ -11,7 +11,7 @@ import (
 import (
 	"github.com/Alanxtl/mycache_go/pkg/mycache"
 	"github.com/Alanxtl/mycache_go/pkg/mycache/getter"
-	"github.com/Alanxtl/mycache_go/pkg/server"
+	"github.com/Alanxtl/mycache_go/pkg/peer"
 )
 
 var db = map[string]string{
@@ -23,7 +23,6 @@ var db = map[string]string{
 func createGroup() *mycache.Group {
 	return mycache.NewGroup("scores", 2<<10, getter.GetterFunc(
 		func(key string) ([]byte, error) {
-			log.Println("[SlowDB] search key", key)
 			if v, ok := db[key]; ok {
 				return []byte(v), nil
 			}
@@ -32,7 +31,7 @@ func createGroup() *mycache.Group {
 }
 
 func startCacheServer(addr string, addrs []string, gee *mycache.Group) {
-	peers := server.NewDubboPoll(addr)
+	peers := peer.NewDubboPoll(addr)
 	peers.Set(addrs...)
 	gee.RegisterPeers(peers)
 	peers.Serve(addr)
@@ -44,7 +43,7 @@ func startAPIServer(apiAddr string, gee *mycache.Group) {
 	http.Handle("/api", http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			key := r.URL.Query().Get("key")
-			log.Println("[SlowDB] search key", key)
+			log.Printf("[API server] search key %s", key)
 			view, err := gee.Get(key)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -82,5 +81,5 @@ func main() {
 	if api {
 		go startAPIServer(apiAddr, gee)
 	}
-	startCacheServer("http://localhost:" + strconv.Itoa(port), addrs, gee)
+	startCacheServer("http://localhost:"+strconv.Itoa(port), addrs, gee)
 }
