@@ -2,12 +2,17 @@ package server
 
 import (
 	"fmt"
-	message "github.com/Alanxtl/mycache_go/pkg/message"
-	"github.com/Alanxtl/mycache_go/pkg/mycache"
-	"google.golang.org/protobuf/proto"
 	"io"
 	"net/http"
 	"net/url"
+)
+
+import (
+	"google.golang.org/protobuf/proto"
+)
+
+import (
+	"github.com/Alanxtl/mycache_go/pkg/message"
 )
 
 type HttpGetter struct {
@@ -46,4 +51,4 @@ func (h *HttpGetter) Get(in *message.Request) (*message.Response, error) {
 	return out, nil
 }
 
-var _ mycache.PeerGetter = (*HttpGetter)(nil)
+//var _ mycache.PeerGetter = (*HttpGetter)(nil)

@@ -107,6 +107,8 @@ func (g *Group) load(key string) (value cache.ByteView, err error) {
 				log.Println("[mycache] Failed to get from peer", err)
 			}
 		}
+
+		// 这个getLocally只是针对当前用例所以是从本地中获取，实际场景中应该打到主DB上
 		return g.getLocally(key)
 	})
 

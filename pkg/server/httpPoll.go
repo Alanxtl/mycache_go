@@ -19,11 +19,6 @@ import (
 	"github.com/Alanxtl/mycache_go/pkg/mycache/loadbalance/consistenthash"
 )
 
-const (
-	DefaultBasePath = "/_mycache/"
-	defaultReplicas = 50
-)
-
 type HttpPoll struct {
 	self        string
 	basePath    string
@@ -110,4 +105,4 @@ func (p *HttpPoll) PickPeer(key string) (mycache.PeerGetter, bool) {
 	return nil, false
 }
 
-var _ mycache.PeerPicker = (*HttpPoll)(nil)
+//var _ mycache.PeerPicker = (*HttpPoll)(nil)
